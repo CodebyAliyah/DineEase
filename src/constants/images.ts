@@ -1,0 +1,16 @@
+export const IMAGES = {
+    logo:require("../assets/images/logo.png"),
+    pizza:require("../assets/images/pizza.png"),
+    choclate:require("../assets/images/choclate.png"),
+    coffe:require("../assets/images/coffe.png"),
+    FacebookIcon:require("../assets/images/FacebookIcon.png"),
+    GoogleIcon:require("../assets/images/GoogleIcon.png"),
+    back:require("../assets/images/back.png"),
+    ShowOff:require("../assets/images/ShowOff.png"),
+    cart:require("../assets/images/cart.png"),
+    profile:require("../assets/images/profile.png"),
+    filter:require("../assets/images/filter.png"),
+    bell:require("../assets/icons/bell.png"),
+    edit:require("../assets/icons/edit.png"),
+    profilep:require("../assets/images/profilep.png"),
+}
