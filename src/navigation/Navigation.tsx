@@ -3,30 +3,38 @@ import auth from "@react-native-firebase/auth";
 import AuthStack from "../navigation/stack/AuthStackNavigation";
 import { View, ActivityIndicator } from "react-native";
 import { StackNavigation } from "./stack/StackNavigation";
+import DrawerNavigation from "./drawer/DrawerNavigation";
 
 
 const Navigation = () => {
-  // const [user, setUser] = useState<null | object>(null);
-  // const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<null | object>(null);
+  const [loading, setLoading] = useState(true);
 
-  // useEffect(() => {
-  //   const unsubscribe = auth().onAuthStateChanged((authUser) => {
-  //     setUser(authUser);
-  //     setLoading(false);
-  //   });
+  useEffect(() => {
+    const unsubscribe = auth().onAuthStateChanged((authUser) => {
+      setUser(authUser);
+      setLoading(false);
+    });
 
-  //   return unsubscribe;
-  // }, []);
+    return unsubscribe;
+  }, []);
 
-  // if (loading) {
-  //   return (
-  //     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
-  //       <ActivityIndicator size="large" color="#0000ff" />
-  //     </View>
-  //   );
-  // }
+  if (loading) {
+    return (
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
+        <ActivityIndicator size="large" color="#0000ff" />
+      </View>
+    );
+  }
 
-  return   <StackNavigation />
+  return user ? (
+    <>
+      <StackNavigation />
+      {/* <DrawerNavigation /> */}
+    </>
+  ) : (
+    <AuthStack />
+  );
 };
 
 export default Navigation;

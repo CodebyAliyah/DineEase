@@ -1,13 +1,18 @@
-import { signupUser, } from "../../../redux/slices/authSlice";
 import { useAppDispatch, useAppSelector } from "../../../hooks/useStore";
+import { signupUser } from "../../../redux/slices/userSlice";
 
 export const useSignup = () => {
   const dispatch = useAppDispatch();
-  const { loading, error } = useAppSelector((state) => state.auth as { loading: boolean; error: string | null });
+  const { loading, error } = useAppSelector((state) => state.user);
 
-  const signup = (email: string, password: string) => {
-    dispatch(signupUser({ email, password }));
+  const signup = async (name: string, phone: string, dob: string, email: string, password: string) => {
+    try {
+      await dispatch(signupUser({ name, phone, dob, email, password })).unwrap();
+      console.log("Signup successful!");
+    } catch (err: any) {
+      console.error("Signup failed:", err.message || err);
+    }
   };
-
+  
   return { signup, loading, error };
 };

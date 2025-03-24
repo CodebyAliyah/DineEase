@@ -13,4 +13,6 @@ export const IMAGES = {
     bell:require("../assets/icons/bell.png"),
     edit:require("../assets/icons/edit.png"),
     profilep:require("../assets/images/profilep.png"),
+    heart:require("../assets/images/heart.jpg"),
+    plus:require("../assets/images/plus.png"),
 }

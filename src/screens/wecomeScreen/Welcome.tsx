@@ -26,8 +26,8 @@ const WelcomeScreen: React.FC = () => {
         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod.
       </Text>
 
-      <Button title="Log In" onPress={() => navigation.navigate("LoginScreen")} />
-      <Button title="Sign Up" onPress={() => navigation.navigate("SignUpScreen")} variant="secondary" />
+      <Button title="Log In" onPress={() => navigation.navigate("LoginScreen")} disabled={false} />
+      <Button title="Sign Up" onPress={() => navigation.navigate("SignUpScreen")} variant="secondary" disabled={false} />
     </View>
   );
 };

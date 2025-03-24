@@ -1,3 +1,4 @@
+// src/screens/homeScreen/HomeScreen.tsx
 import React from 'react';
 import {
   View,
@@ -7,54 +8,36 @@ import {
   Image,
   TouchableOpacity,
   StyleSheet,
-  ScrollView
+  ScrollView,
 } from 'react-native';
-import {IMAGES} from '../../constants/images';
+import { IMAGES } from '../../constants/images';
 import ScreenLayout from '../../components/screenLoyout/ScreenLayout';
-import { DrawerActionHelpers, DrawerActions, useNavigation } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { DrawerNavigationProp } from '@react-navigation/drawer';
+import Input from '../../components/input/Input';
+import { categories, bestSellers, recommendations } from '../../constants/homeLinks';
+import { RootStackParamList } from '../../types/type';
 
-
-const categories = [
-  {id: '1', title: 'Snacks', icon: require('../../assets/icons/snack.png')},
-  {id: '2', title: 'Meal', icon: require('../../assets/icons/meal.png')},
-  {id: '3', title: 'Vegan', icon: require('../../assets/icons/vegan.png')},
-  {id: '4', title: 'Dessert', icon: require('../../assets/icons/dessert.png')},
-  {id: '5', title: 'Drinks', icon: require('../../assets/icons/drinks.png')},
-];
-
-
-const bestSellers = [
-  {id: '1', image: require('../../assets/images/sushi.png'), price: '$103.0'},
-  {id: '2', image: require('../../assets/images/salad.png'), price: '$50.0'},
-  {id: '3', image: require('../../assets/images/lasagna.png'), price: '$12.99'},
-  {id: '4', image: require('../../assets/images/cake.png'), price: '$8.20'},
-];
-
-const recommendations = [
-  {
-    id: '1',
-    image: require('../../assets/images/burger.png'),
-    price: '$10.0',
-    rating: '5.0',
-  },
-
-  {
-    id: '2',
-    image: require('../../assets/images/sushi2.png'),
-    price: '$25.0',
-    rating: '5.0',
-  },
-];
-
+// Define the navigation prop type
+type NavigationProp = DrawerNavigationProp<RootStackParamList, 'Home'>;
 
 const HomeScreen = () => {
+  const navigation = useNavigation<NavigationProp>();
+
   return (
     <ScreenLayout
       showBackButton={false}
       topbarProps={
         <View style={styles.header}>
+          {/* Add Drawer Toggle Button */}
+          <TouchableOpacity onPress={() => navigation.openDrawer()}>
+            <Image
+              source={IMAGES.cart} // Replace with your menu icon (e.g., hamburger icon)
+              style={styles.menuIcon}
+            />
+          </TouchableOpacity>
           <View style={styles.searchContainer}>
-            <TextInput
+            <Input
               placeholder="Search"
               placeholderTextColor="black"
               style={styles.searchBar}
@@ -64,102 +47,102 @@ const HomeScreen = () => {
             </TouchableOpacity>
           </View>
           <View style={styles.iconsContainer}>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={()=> navigation.navigate("CartScreen")}>
               <Image source={IMAGES.cart} style={styles.icon} />
             </TouchableOpacity>
             <TouchableOpacity>
               <Image source={IMAGES.bell} style={styles.icon} />
             </TouchableOpacity>
-            <TouchableOpacity>
+            <TouchableOpacity onPress={() => navigation.navigate('ProfileScreen')}>
               <Image source={IMAGES.profile} style={styles.icon} />
             </TouchableOpacity>
           </View>
         </View>
       }
-
       subBarProps={
         <View style={styles.subBar}>
           <Text style={styles.greeting}>Good Morning</Text>
-          <Text style={styles.subtext}>
-            Rise And Shine! It's Breakfast Time
-          </Text>
+          <Text style={styles.subtext}>Rise And Shine! It's Breakfast Time</Text>
         </View>
-      }>
-        <ScrollView>
-          <View style={styles.content}>
+      }
+    >
+      <ScrollView>
+        <View style={styles.content}>
+          <FlatList
+            data={categories}
+            horizontal
+            showsHorizontalScrollIndicator={false}
+            keyExtractor={(item) => item.id}
+            contentContainerStyle={styles.categoryContainer}
+            renderItem={({ item }) => (
+              <TouchableOpacity
+                style={styles.category}
+                onPress={() => navigation.navigate("itemScreen")}
+              >
+                <View style={styles.categoryCircle}>
+                  <Image source={item.icon} style={styles.categoryIcon} />
+                </View>
+                <Text style={styles.categoryText}>{item.title}</Text>
+              </TouchableOpacity>
+            )}
+          />
+
+          <View style={styles.sectionHeader}>
+            <Text style={styles.sectionTitle}>Best Seller</Text>
+            <TouchableOpacity>
+              <Text style={styles.viewAll}>View All</Text>
+            </TouchableOpacity>
+          </View>
+          <View style={styles.bestSellerWrapper}>
             <FlatList
-              data={categories}
+              data={bestSellers}
               horizontal
               showsHorizontalScrollIndicator={false}
-              keyExtractor={item => item.id}
-              contentContainerStyle={styles.categoryContainer}
-              renderItem={({item}) => (
-                <TouchableOpacity style={styles.category}>
-                  <View style={styles.categoryCircle}>
-                    <Image source={item.icon} style={styles.categoryIcon} />
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.bestSellerContainer}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.bestSellerCard}>
+                  <Image source={item.image} style={styles.bestSellerImage} />
+                  <View style={styles.priceTag}>
+                    <Text style={styles.priceText}>{item.price}</Text>
                   </View>
-                  <Text style={styles.categoryText}>{item.title}</Text>
                 </TouchableOpacity>
               )}
             />
-
-            <View style={styles.sectionHeader}>
-              <Text style={styles.sectionTitle}>Best Seller</Text>
-              <TouchableOpacity>
-                <Text style={styles.viewAll}>View All</Text>
-              </TouchableOpacity>
-            </View>
-
-            <View style={styles.bestSellerWrapper}>
-              <FlatList
-                data={bestSellers}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.bestSellerContainer}
-                renderItem={({item}) => (
-                  <TouchableOpacity style={styles.bestSellerCard}>
-                    <Image source={item.image} style={styles.bestSellerImage} />
-                    <View style={styles.priceTag}>
-                      <Text style={styles.priceText}>{item.price}</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
-            <TouchableOpacity style={styles.promoContainer}>
-              <Image
-                source={require('../../assets/images/promo.png')}
-                style={styles.promoImage}
-              />
-            </TouchableOpacity>
-
-            <View style={styles.recommendSection}>
-              <Text style={styles.sectionTitle}>Recommend</Text>
-            </View>
-
-            <View style={styles.recommendWrapper}>
-              <FlatList
-                data={recommendations}
-                horizontal
-                showsHorizontalScrollIndicator={false}
-                keyExtractor={item => item.id}
-                contentContainerStyle={styles.recommendContainer}
-                renderItem={({item}) => (
-                  <TouchableOpacity style={styles.recommendCard}>
-                    <Image source={item.image} style={styles.recommendImage} />
-                    <View style={styles.ratingContainer}>
-                      <Text style={styles.ratingText}>{item.rating}</Text>
-                    </View>
-                    <View style={styles.recommendPriceTag}>
-                      <Text style={styles.recommendPriceText}>{item.price}</Text>
-                    </View>
-                  </TouchableOpacity>
-                )}
-              />
-            </View>
           </View>
-        </ScrollView>
+          <TouchableOpacity style={styles.promoContainer}>
+            <Image
+              source={require('../../assets/images/promo.png')}
+              style={styles.promoImage}
+            />
+          </TouchableOpacity>
+
+          <View style={styles.recommendSection}>
+            <Text style={styles.sectionTitle}>Recommend</Text>
+          </View>
+
+          <View style={styles.recommendWrapper}>
+            <FlatList
+              data={recommendations}
+              horizontal
+              showsHorizontalScrollIndicator={false}
+              keyExtractor={(item) => item.id}
+              contentContainerStyle={styles.recommendContainer}
+              renderItem={({ item }) => (
+                <TouchableOpacity style={styles.recommendCard}>
+                  <Image source={item.image} style={styles.recommendImage} />
+                  <View style={styles.ratingContainer}>
+                    <Text style={styles.ratingText}>{item.rating}</Text>
+                  </View>
+                  <View style={styles.recommendPriceTag}>
+                    <Text style={styles.recommendPriceText}>{item.price}</Text>
+                  </View>
+                </TouchableOpacity>
+              )}
+            />
+          </View>
+        </View>
+      </ScrollView>
     </ScreenLayout>
   );
 };
@@ -169,8 +152,13 @@ const styles = StyleSheet.create({
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'space-between',
-    paddingHorizontal: 25,
+    paddingHorizontal: 15, // Adjusted padding
     width: '100%',
+  },
+  menuIcon: {
+    width: 24,
+    height: 24,
+    marginRight: 10,
   },
   viewAll: {
     fontSize: 12,
@@ -322,21 +310,6 @@ const styles = StyleSheet.create({
     width: '100%',
     height: '100%',
     borderRadius: 20,
-  },
-  promoContent: {
-    position: 'absolute',
-    justifyContent: 'center',
-  },
-  promoText: {
-    fontSize: 16,
-    fontWeight: 'bold',
-    color: 'white',
-    marginBottom: 5,
-  },
-  promoDiscount: {
-    fontSize: 24,
-    fontWeight: 'bold',
-    color: 'white',
   },
   category: {
     alignItems: 'center',

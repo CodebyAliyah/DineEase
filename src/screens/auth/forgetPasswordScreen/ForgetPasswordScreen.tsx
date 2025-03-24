@@ -1,24 +1,53 @@
-import React, { useState } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity } from 'react-native';
+import React, {useState} from 'react';
+import {
+  StyleSheet,
+  Text,
+  View,
+  TextInput,
+  TouchableOpacity,
+  ToastAndroid,
+} from 'react-native';
 import ScreenLayout from '../../../components/screenLoyout/ScreenLayout';
-import { useForgetPassword } from './useForgetPassword';
+import {useForgetPassword} from './useForgetPassword';
+import Input from '../../../components/input/Input';
 
 const ForgetPasswordScreen = () => {
   const [email, setEmail] = useState('');
-  const { resetPassword, loading, error } = useForgetPassword();
+  const {resetPassword, loading, error} = useForgetPassword();
 
-  const handleResetPassword = () => {
-    if (email.trim() === '') return;
-    resetPassword(email);
+  const isValidEmail = (email: string) => {
+    return /\S+@\S+\.\S+/.test(email);
+  };
+
+  const handleResetPassword = async () => {
+    if (!email.trim()) {
+      ToastAndroid.show('Please enter an email.', ToastAndroid.SHORT);
+      return;
+    }
+    if (!isValidEmail(email)) {
+      ToastAndroid.show(
+        'Please enter a valid email address.',
+        ToastAndroid.SHORT,
+      );
+      return;
+    }
+
+    try {
+      await resetPassword(email);
+
+      ToastAndroid.show('Reset email sent successfully!', ToastAndroid.SHORT);
+      setEmail('');
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   return (
     <ScreenLayout topbarProps="Forget Password">
       <View style={styles.container}>
-        {/* Email Input */}
         <Text style={styles.label}>Email</Text>
         <View style={styles.inputContainer}>
-          <TextInput
+          <Input
             style={styles.input}
             placeholder="example@example.com"
             placeholderTextColor="#7a6f6f"
@@ -27,15 +56,15 @@ const ForgetPasswordScreen = () => {
           />
         </View>
 
-        {/* Show error message if any */}
         {error && <Text style={styles.errorText}>{error}</Text>}
 
-        {/* Forget Password Button */}
         <TouchableOpacity
-          style={[styles.forgetPasswordButton, loading && styles.disabledButton]}
+          style={[
+            styles.forgetPasswordButton,
+            loading && styles.disabledButton,
+          ]}
           onPress={handleResetPassword}
-          disabled={loading}
-        >
+          disabled={loading}>
           <Text style={styles.forgetPasswordButtonText}>
             {loading ? 'Processing...' : 'Reset'}
           </Text>

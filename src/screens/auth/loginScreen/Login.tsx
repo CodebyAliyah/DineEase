@@ -1,3 +1,4 @@
+import React, {useState} from 'react';
 import {
   StyleSheet,
   Text,
@@ -6,41 +7,53 @@ import {
   TouchableOpacity,
   Image,
   ActivityIndicator,
+  ToastAndroid, // 1) Import ToastAndroid
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import {useNavigation} from '@react-navigation/native';
 import ScreenLayout from '../../../components/screenLoyout/ScreenLayout';
-import { IMAGES } from '../../../constants/images';
-import { useLogin } from './useLogin';
+import {IMAGES} from '../../../constants/images';
+import {useLogin} from './useLogin';
+import Input from '../../../components/input/Input';
 
 const LoginScreen = () => {
   const navigation = useNavigation();
-  const { login, loading, error } = useLogin();
-  
+  const {login, loading, error} = useLogin();
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleLogin = () => {
-    if (email && password) {
-      login(email, password);
+  const handleLogin = async () => {
+    if (!email.trim() || !password.trim()) {
+      ToastAndroid.show(
+        'Please enter both email and password.',
+        ToastAndroid.SHORT,
+      );
+      return;
+    }
+
+    try {
+      await login(email, password);
+
+      ToastAndroid.show('Login successful!', ToastAndroid.SHORT);
+      setEmail('');
+      setPassword('');
+    } catch (err) {
+      console.error('Login error:', err);
     }
   };
-
 
   return (
     <ScreenLayout topbarProps="Log In">
       <View style={styles.container}>
-        {/* Welcome Text */}
         <Text style={styles.welcomeTitle}>Welcome</Text>
         <Text style={styles.welcomeText}>
           Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do
           eiusmod tempor incididunt ut labore et dolore magna aliqua.
         </Text>
 
-        {/* Email Input */}
         <Text style={styles.label}>Email or Mobile Number</Text>
         <View style={styles.inputContainer}>
-          <TextInput
+          <Input
             style={styles.input}
             placeholder="example@example.com"
             placeholderTextColor="#7a6f6f"
@@ -49,10 +62,9 @@ const LoginScreen = () => {
           />
         </View>
 
-        {/* Password Input */}
         <Text style={styles.label}>Password</Text>
         <View style={styles.inputContainer}>
-          <TextInput
+          <Input
             style={styles.input}
             placeholder="************"
             placeholderTextColor="#7a6f6f"
@@ -65,19 +77,17 @@ const LoginScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Error Message */}
         {error && <Text style={styles.errorText}>{error}</Text>}
 
-        {/* Forgot Password */}
-        <TouchableOpacity onPress={() => navigation.navigate("OnBoardingScreen")}>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('ForgotPasswordScreen')}>
           <Text style={styles.forgotPassword}>Forget Password</Text>
         </TouchableOpacity>
-        {/* Login Button */}
-        <TouchableOpacity 
-          style={styles.loginButton} 
+
+        <TouchableOpacity
+          style={styles.loginButton}
           onPress={handleLogin}
-          disabled={loading}
-        >
+          disabled={loading}>
           {loading ? (
             <ActivityIndicator color="#FFF" />
           ) : (
@@ -85,7 +95,6 @@ const LoginScreen = () => {
           )}
         </TouchableOpacity>
 
-        {/* Social Sign In */}
         <Text style={styles.orText}>or sign up with</Text>
         <View style={styles.socialIcons}>
           <TouchableOpacity>
@@ -96,7 +105,6 @@ const LoginScreen = () => {
           </TouchableOpacity>
         </View>
 
-        {/* Sign Up Link */}
         <TouchableOpacity onPress={() => navigation.navigate('SignUpScreen')}>
           <View>
             <Text style={styles.signUpText}>

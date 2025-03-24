@@ -21,7 +21,6 @@ const FoodItem: React.FC<FoodItemProps> = ({ image, name, price, description }) 
     </View>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     backgroundColor: '#fff',

@@ -1,41 +1,65 @@
+import React, { useState } from 'react';
 import {
   StyleSheet,
   Text,
   View,
-  TextInput,
   TouchableOpacity,
   Image,
   ScrollView,
+  ToastAndroid, 
 } from 'react-native';
-import { useNavigation } from '@react-navigation/native';
-import React, { useState } from 'react';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import ScreenLayout from '../../../components/screenLoyout/ScreenLayout';
 import { IMAGES } from '../../../constants/images';
 import { RootStackParamList } from '../../../types/type';
 import { useSignup } from './useSignup';
+import Input from '../../../components/input/Input';
 
 const SignUpScreen = () => {
-  const navigation = useNavigation<RootStackParamList>();
+  const navigation = useNavigation<NavigationProp<RootStackParamList>>();
   const { signup, loading, error } = useSignup();
-  
+
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [mobileNumber, setMobileNumber] = useState('');
   const [dob, setDob] = useState('');
 
-  const handleSignUp = () => {
-    signup(email, password);
+  const handleSignUp = async () => {
+    if (
+      !fullName.trim() ||
+      !email.trim() ||
+      !password.trim() ||
+      !mobileNumber.trim() ||
+      !dob.trim()
+    ) {
+      ToastAndroid.show('Please fill out all fields.', ToastAndroid.SHORT);
+      return;
+    }
+  
+    try {
+      await signup(fullName, mobileNumber, dob, email, password);
+  
+      ToastAndroid.show('Account created successfully!', ToastAndroid.SHORT);
+      setEmail('');
+      setPassword('');
+      setFullName('');
+      setMobileNumber('');
+      setDob('');
+  
+    } catch (err) {
+      console.error('Signup error:', err);
+    }
   };
   
+
   return (
     <ScreenLayout topbarProps="New Account">
       <ScrollView>
         <View style={styles.container}>
-          {/* Full Name */}
           <Text style={styles.label}>Full name</Text>
           <View style={styles.inputContainer}>
-            <TextInput
+            <Input
               style={styles.input}
               placeholder="John Doe"
               placeholderTextColor="#7a6f6f"
@@ -44,10 +68,9 @@ const SignUpScreen = () => {
             />
           </View>
 
-          {/* Email */}
           <Text style={styles.label}>Email</Text>
           <View style={styles.inputContainer}>
-            <TextInput
+            <Input
               style={styles.input}
               placeholder="example@example.com"
               placeholderTextColor="#7a6f6f"
@@ -56,10 +79,9 @@ const SignUpScreen = () => {
             />
           </View>
 
-          {/* Password */}
           <Text style={styles.label}>Password</Text>
           <View style={styles.inputContainer}>
-            <TextInput
+            <Input
               style={styles.input}
               placeholder="************"
               placeholderTextColor="#7a6f6f"
@@ -72,10 +94,9 @@ const SignUpScreen = () => {
             </TouchableOpacity>
           </View>
 
-          {/* Mobile Number */}
           <Text style={styles.label}>Mobile Number</Text>
           <View style={styles.inputContainer}>
-            <TextInput
+            <Input
               style={styles.input}
               placeholder="+ 123 456 789"
               placeholderTextColor="#7a6f6f"
@@ -84,10 +105,9 @@ const SignUpScreen = () => {
             />
           </View>
 
-          {/* Date of Birth */}
           <Text style={styles.label}>Date of birth</Text>
           <View style={styles.inputContainer}>
-            <TextInput
+            <Input
               style={styles.input}
               placeholder="DD / MM / YYYY"
               placeholderTextColor="#7a6f6f"
@@ -97,7 +117,6 @@ const SignUpScreen = () => {
           </View>
 
           <View style={styles.buttonContainer}>
-            {/* Terms and Conditions */}
             <View style={{ width: 180, margin: 'auto' }}>
               <Text style={styles.termsText}>
                 By continuing, you agree to{' '}
@@ -106,14 +125,18 @@ const SignUpScreen = () => {
               </Text>
             </View>
 
-            {/* Sign Up Button */}
-            <TouchableOpacity style={styles.signUpButton} onPress={handleSignUp} disabled={loading}>
-              <Text style={styles.signUpButtonText}>{loading ? 'Signing Up...' : 'Sign Up'}</Text>
+            <TouchableOpacity
+              style={styles.signUpButton}
+              onPress={handleSignUp}
+              disabled={loading}
+            >
+              <Text style={styles.signUpButtonText}>
+                {loading ? 'Signing Up...' : 'Sign Up'}
+              </Text>
             </TouchableOpacity>
 
             {error && <Text style={styles.errorText}>{error}</Text>}
 
-            {/* Social Sign In */}
             <Text style={styles.orText}>or sign up with</Text>
           </View>
           <View style={{ paddingBottom: 20 }}>
@@ -125,12 +148,9 @@ const SignUpScreen = () => {
                 <Image source={IMAGES.FacebookIcon} style={styles.socialIcon} />
               </TouchableOpacity>
             </View>
-
-            {/* Log In Link */}
             <TouchableOpacity onPress={() => navigation.navigate('LoginScreen')}>
               <Text style={styles.loginText}>
-                Already have an account?{' '}
-                <Text style={styles.loginLink}>Log in</Text>
+                Already have an account? <Text style={styles.loginLink}>Log in</Text>
               </Text>
             </TouchableOpacity>
           </View>
@@ -144,7 +164,7 @@ export default SignUpScreen;
 
 const styles = StyleSheet.create({
   container: {
-    paddingVertical:15,
+    paddingVertical: 15,
     paddingHorizontal: 12,
   },
   label: {
