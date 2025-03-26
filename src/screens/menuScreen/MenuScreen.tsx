@@ -12,11 +12,14 @@ import {IMAGES} from '../../constants/images';
 import {Product, RootStackParamList} from '../../types/type';
 import {useAppDispatch, useAppSelector} from '../../hooks/useStore';
 import ProductCard from '../../components/productCart/ProductCart';
-import {fetchProducts} from '../../redux/slices/productSlice';
+import {fetchProducts,} from '../../redux/slices/productSlice';
 import {useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import Input from '../../components/input/Input';
 import {categories} from '../../constants/menuLinks';
+import { removeItemFromCart, updateUserData } from '../../redux/slices/userSlice';
+import { store } from '../../redux/store';
+
 const MenuScreen: React.FC = () => {
   const navigation = useNavigation<StackNavigationProp<RootStackParamList>>();
   const [searchTerm, setSearchTerm] = useState<string>('');
@@ -36,7 +39,7 @@ const MenuScreen: React.FC = () => {
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
-
+  
   const [activeCategory, setActiveCategory] = useState<string>('all');
   const activeProducts = React.useMemo(() => {
     return activeCategory === 'all'
@@ -46,15 +49,31 @@ const MenuScreen: React.FC = () => {
 
   const filteredProducts = React.useMemo(() => {
     if (!searchTerm) return activeProducts;
-
     return activeProducts.filter(product =>
       product?.name?.toLowerCase()?.includes(searchTerm.toLowerCase()),
     );
   }, [searchTerm, activeProducts]);
-
+  
   const navigateToCart = () => {
     navigation.navigate('CartScreen');
   };
+
+  const handleRemoveProduct = (productId: string) => {
+    // Remove item from local Redux state
+    dispatch(removeItemFromCart({ productId }));
+  
+    // Get updated cart state
+    const { cartItems, totalAmount } = store.getState().user.cart; // Adjust according to your state management
+  
+    // Get current user id from your auth state (ensure you have it stored somewhere)
+    const userId = auth().currentUser?.uid;
+    console.log("user id", userId)
+    if (userId) {
+      // Dispatch update action to sync with Firestore
+      dispatch(updateUserData({ userId, cartItems, totalAmount }));
+    }
+  };
+  
 
   return (
     <ScreenLayout
@@ -101,7 +120,7 @@ const MenuScreen: React.FC = () => {
           data={categories}
           horizontal
           showsHorizontalScrollIndicator={false}
-          keyExtractor={item => item.id}
+          keyExtractor={item => item.id || ''}
           contentContainerStyle={styles.categoryContainer}
           renderItem={({item}) => {
             const isActive = item.title === activeCategory;
@@ -134,10 +153,13 @@ const MenuScreen: React.FC = () => {
         ) : activeProducts.length > 0 ? (
           <FlatList
             data={filteredProducts}
-            keyExtractor={item => item.id}
+            keyExtractor={(item, index) => item.id ? `${item.id}-${index}` : `item-${index}`}
             contentContainerStyle={styles.productListContainer}
             renderItem={({item}: {item: Product}) => (
-              <ProductCard product={item} />
+              <ProductCard 
+                product={item} 
+                onRemove={() => item.id && handleRemoveProduct(item.id)}
+              />
             )}
           />
         ) : (
@@ -281,3 +303,5 @@ const styles = StyleSheet.create({
     fontSize: 14,
   },
 });
+import auth from '@react-native-firebase/auth';
+

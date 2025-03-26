@@ -1,4 +1,4 @@
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, NavigationProp } from '@react-navigation/native';
 import React, {useState} from 'react';
 import {View, Text, Image, TouchableOpacity, StyleSheet} from 'react-native';
 
@@ -31,14 +31,18 @@ const slides = [
 
 const OnBoardingScreen = () => {
   const [currentIndex, setCurrentIndex] = useState(0);
-const navigation = useNavigation()
-  const handleNext = () => {
-    if (currentIndex < slides.length - 1) {
-      setCurrentIndex(currentIndex + 1);
-    } else {
-      navigation.navigate('MainApp',{screen:"Home"});
-    }
-  };
+type RootStackParamList = {
+  MainApp: { screen: string };
+};
+
+const navigation = useNavigation<NavigationProp<RootStackParamList>>();
+const handleNext = () => {
+  if (currentIndex < slides.length - 1) {
+    setCurrentIndex(currentIndex + 1);
+  } else {
+    navigation.navigate('MainApp', { screen: "Home" });
+  }
+};
   
   return (
     <View style={styles.container}>

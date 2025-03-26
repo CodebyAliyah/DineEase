@@ -18,7 +18,6 @@ const ScreenLayout: React.FC<ScreenLayoutProps> = ({
   subBarProps,
 }) => {
   const navigation = useNavigation();
-
   return (
     <View style={styles.container}>
       {showBackButton && (

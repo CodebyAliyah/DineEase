@@ -1,23 +1,22 @@
-
-import React, { useState } from 'react';
-import { 
-  View, 
-  Text, 
-  Image, 
-  TouchableOpacity, 
-  StyleSheet, 
-  ScrollView 
+import React, {useState} from 'react';
+import {
+  View,
+  Text,
+  Image,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
 } from 'react-native';
 import ScreenLayout from '../../components/screenLoyout/ScreenLayout';
-import { IMAGES } from '../../constants/images';
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { RouteProp } from '@react-navigation/native';
-import { RootStackParamList } from '../../types/type';
-import { StackNavigationProp } from '@react-navigation/stack';
-import { useAppDispatch } from '../../hooks/useStore';
+import {IMAGES} from '../../constants/images';
+import {RouteProp} from '@react-navigation/native';
+import {RootStackParamList} from '../../types/type';
+import {StackNavigationProp} from '@react-navigation/stack';
+import {useAppDispatch} from '../../hooks/useStore';
 import firestore from '@react-native-firebase/firestore';
-import { addItemToCart } from '../../redux/slices/userSlice';
+import {addItemToCart} from '../../redux/slices/userSlice';
 import auth from '@react-native-firebase/auth';
+import {TOPPINGS} from '../../constants/toppings';
 
 interface Topping {
   id: string;
@@ -25,66 +24,78 @@ interface Topping {
   price: number;
 }
 
-type ProductDetailScreenRouteProp = RouteProp<RootStackParamList, 'ProductDetailScreen'>;
+type ProductDetailScreenRouteProp = RouteProp<
+  RootStackParamList,
+  'ProductDetailScreen'
+>;
 
-type ProductDetailScreenNavigationProp = StackNavigationProp<RootStackParamList>;
+type ProductDetailScreenNavigationProp =
+  StackNavigationProp<RootStackParamList>;
 
 interface ProductDetailScreenProps {
   route: ProductDetailScreenRouteProp;
   navigation: ProductDetailScreenNavigationProp;
 }
 
-const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, navigation }) => {
-  const { product } = route.params;
+const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({
+  route,
+  navigation,
+}) => {
+  const {product} = route.params;
   const [quantity, setQuantity] = useState<number>(1);
   const [selectedToppings, setSelectedToppings] = useState<Topping[]>([]);
   const dispatch = useAppDispatch();
 
   const calculateTotalPrice = (): number => {
     let total = (product.price ?? 0) * quantity;
-    
+
     selectedToppings.forEach(topping => {
       total += topping.price;
     });
-    
+
     return total;
   };
 
   const toggleTopping = (topping: Topping): void => {
     if (selectedToppings.find(item => item.id === topping.id)) {
-      setSelectedToppings(selectedToppings.filter(item => item.id !== topping.id));
+      setSelectedToppings(
+        selectedToppings.filter(item => item.id !== topping.id),
+      );
     } else {
       setSelectedToppings([...selectedToppings, topping]);
     }
   };
   const handleAddToCart = async (): Promise<void> => {
     const currentUser = auth().currentUser;
-  
+
     if (!currentUser) {
-      // Handle the case where the user is not logged in
-      console.error("User is not logged in");
+      console.log('User is not logged in');
       return;
     }
-  
+
     const cartItem = {
-      productId: product.id || "",
+      productId: product.id || '',
+      name: product.name || '',
+      price: product.price || 0,
+      image: product.imageUrl || '',
+      quantity: quantity,
       totalPrice: calculateTotalPrice(),
     };
-  
+
     try {
-      // Dispatch the action to update the local state
-      dispatch(addItemToCart({ item: cartItem }));
-  
-      // Update Firestore
-      const userRef = firestore().collection("users").doc(currentUser.uid);
+      dispatch(addItemToCart({item: cartItem}));
+      const userRef = firestore().collection('users').doc(currentUser.uid);
       const userSnap = await userRef.get();
-  
+
       if (userSnap.exists) {
         const userData = userSnap.data();
         const currentCartItems = userData?.cart?.cartItems || [];
         const updatedCartItems = [...currentCartItems, cartItem];
-        const totalAmount = updatedCartItems.reduce((total, item) => total + item.totalPrice, 0);
-  
+        const totalAmount = updatedCartItems.reduce(
+          (total, item) => total + item.totalPrice,
+          0,
+        );
+
         await userRef.update({
           cart: {
             cartItems: updatedCartItems,
@@ -93,51 +104,50 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
           updatedAt: firestore.FieldValue.serverTimestamp(),
         });
       }
-  
+
       navigation.goBack();
     } catch (error) {
-      console.error("Error adding item to cart:", error);
+      console.log('Error adding item to cart:', error);
     }
-  };const HeaderComponent = () => (
+  };
+  const HeaderComponent = () => (
     <View style={styles.header}>
       <Text style={styles.categoryText}>{product.category}</Text>
       <TouchableOpacity style={styles.favoriteButton}>
-        <Image source={IMAGES.heart} style={{width: 22, height: 22, }} />
+        <Image source={IMAGES.heart} style={{width: 22, height: 22}} />
       </TouchableOpacity>
     </View>
   );
 
   return (
-    <ScreenLayout 
-      topbarProps={<HeaderComponent />}
-      showBackButton={true}
-    >
+    <ScreenLayout topbarProps={<HeaderComponent />} showBackButton={true}>
       <ScrollView style={styles.scrollView}>
         {/* Product image */}
         <View style={styles.imageContainer}>
-          <Image 
-            source={{ uri: product.imageUrl }} 
-            style={styles.productImage} 
+          <Image
+            source={{uri: product.imageUrl}}
+            style={styles.productImage}
             resizeMode="cover"
           />
         </View>
-        
+
         {/* Price and quantity */}
         <View style={styles.priceQuantityContainer}>
           <Text style={styles.price}>${calculateTotalPrice().toFixed(2)}</Text>
           <View style={styles.quantityControl}>
-            <TouchableOpacity 
-              style={[styles.quantityButton, quantity <= 1 && styles.disabledButton]} 
+            <TouchableOpacity
+              style={[
+                styles.quantityButton,
+                quantity <= 1 && styles.disabledButton,
+              ]}
               onPress={() => quantity > 1 && setQuantity(quantity - 1)}
-              disabled={quantity <= 1}
-            >
+              disabled={quantity <= 1}>
               <Text style={styles.quantityButtonText}>-</Text>
             </TouchableOpacity>
             <Text style={styles.quantityValue}>{quantity}</Text>
-            <TouchableOpacity 
+            <TouchableOpacity
               style={styles.quantityButton}
-              onPress={() => setQuantity(quantity + 1)}
-            >
+              onPress={() => setQuantity(quantity + 1)}>
               <Text style={styles.quantityButtonText}>+</Text>
             </TouchableOpacity>
           </View>
@@ -147,34 +157,25 @@ const ProductDetailScreen: React.FC<ProductDetailScreenProps> = ({ route, naviga
           <Text style={styles.productName}>{product.name}</Text>
           <Text style={styles.productDescription}>{product.description}</Text>
         </View>
-        /* {product.toppings && product.toppings.length > 0 && (
-          <View style={styles.toppingsSection}>
-            <Text style={styles.toppingsTitle}>Toppings</Text>
-            {product.toppings.map(topping  => (
-              <View key={topping.id} style={styles.toppingItem}>
-                <View style={styles.toppingInfo}>
-                  <Text style={styles.toppingName}>{topping.name}</Text>
-                  <Text style={styles.toppingPrice}>${topping.price.toFixed(2)}</Text>
-                </View>
-                <TouchableOpacity
-                  style={styles.checkbox}
-                  onPress={() => toggleTopping(topping)}
-                >
-                  {selectedToppings.some(item => item.id === topping.id) ? (
-                    <Ionicons name="checkmark-circle" size={22} color="#FF6347" />
-                  ) : (
-                    <Ionicons name="ellipse-outline" size={22} color="#AAAAAA" />
-                  )}
-                </TouchableOpacity>
+        <View style={styles.toppingsSection}>
+          <Text style={styles.toppingsTitle}>Toppings</Text>
+          {TOPPINGS.map(topping => (
+            <View key={topping.id} style={styles.toppingItem}>
+              <View style={styles.toppingInfo}>
+                <Text style={styles.toppingName}>{topping.name}</Text>
+                <Text style={styles.toppingPrice}>${topping.price}</Text>
               </View>
-            ))}
-          </View>
-        )}
+              <TouchableOpacity style={styles.checkbox}></TouchableOpacity>
+            </View>
+          ))}
+        </View>
         <View style={styles.spacer} />
       </ScrollView>
-      
+
       <View style={styles.bottomContainer}>
-        <TouchableOpacity style={styles.addToCartButton} onPress={handleAddToCart}>
+        <TouchableOpacity
+          style={styles.addToCartButton}
+          onPress={handleAddToCart}>
           <Text style={styles.addToCartText}>Add to Cart</Text>
         </TouchableOpacity>
       </View>
@@ -193,7 +194,7 @@ const styles = StyleSheet.create({
     fontSize: 18,
     fontWeight: '600',
     color: '#000',
-    top:25,
+    top: 25,
   },
   favoriteButton: {
     padding: 0,
@@ -222,7 +223,7 @@ const styles = StyleSheet.create({
   price: {
     fontSize: 22,
     fontWeight: 'bold',
-    color: '#FF6347', 
+    color: '#FF6347',
   },
   quantityControl: {
     flexDirection: 'row',
@@ -240,7 +241,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     margin: 5,
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 1 },
+    shadowOffset: {width: 0, height: 1},
     shadowOpacity: 0.1,
     shadowRadius: 1,
     elevation: 1,
@@ -289,6 +290,9 @@ const styles = StyleSheet.create({
     borderBottomColor: '#F0F0F0',
   },
   toppingInfo: {
+    flexDirection: 'row',
+    justifyContent:"space-between",
+    alignItems:"center",
     flex: 1,
   },
   toppingName: {
@@ -303,7 +307,7 @@ const styles = StyleSheet.create({
     padding: 5,
   },
   spacer: {
-    height: 70, 
+    height: 70,
   },
   bottomContainer: {
     position: 'absolute',

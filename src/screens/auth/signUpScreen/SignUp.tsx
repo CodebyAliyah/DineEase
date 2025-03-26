@@ -48,7 +48,7 @@ const SignUpScreen = () => {
       setDob('');
   
     } catch (err) {
-      console.error('Signup error:', err);
+      console.log('Signup error:', err);
     }
   };
   

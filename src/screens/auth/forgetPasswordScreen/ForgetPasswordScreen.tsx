@@ -38,7 +38,7 @@ const ForgetPasswordScreen = () => {
       ToastAndroid.show('Reset email sent successfully!', ToastAndroid.SHORT);
       setEmail('');
     } catch (err) {
-      console.error(err);
+      console.log(err);
     }
   };
 

@@ -5,13 +5,13 @@ import { useNavigation } from '@react-navigation/native';
 
 interface ProductCardProps {
   product: Product;
+  onRemove:()=>void;
 }
 
 const ProductCard: React.FC<ProductCardProps> = ({ product }) => {
   const navigation = useNavigation();
   const rating = product.rating ?? 0;
-  const displayRating = rating.toFixed(1); // e.g. "5.0"
-
+  const displayRating = rating.toFixed(1);
   console.log("Image URL:", product.imageUrl);
   return (
     <TouchableOpacity onPress={()=> navigation.navigate("ProductDetailScreen",{ product })} style={styles.card}>

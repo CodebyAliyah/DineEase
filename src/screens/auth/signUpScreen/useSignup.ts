@@ -10,7 +10,7 @@ export const useSignup = () => {
       await dispatch(signupUser({ name, phone, dob, email, password })).unwrap();
       console.log("Signup successful!");
     } catch (err: any) {
-      console.error("Signup failed:", err.message || err);
+      console.log("Signup failed:", err.message || err);
     }
   };
   

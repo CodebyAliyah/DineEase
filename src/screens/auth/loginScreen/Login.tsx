@@ -33,12 +33,11 @@ const LoginScreen = () => {
 
     try {
       await login(email, password);
-
       ToastAndroid.show('Login successful!', ToastAndroid.SHORT);
       setEmail('');
       setPassword('');
     } catch (err) {
-      console.error('Login error:', err);
+      console.log('Login error:', err);
     }
   };
 
@@ -83,7 +82,6 @@ const LoginScreen = () => {
           onPress={() => navigation.navigate('ForgotPasswordScreen')}>
           <Text style={styles.forgotPassword}>Forget Password</Text>
         </TouchableOpacity>
-
         <TouchableOpacity
           style={styles.loginButton}
           onPress={handleLogin}

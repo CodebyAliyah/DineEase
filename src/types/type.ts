@@ -26,6 +26,7 @@ export type InputProps = {
 
 
 export type RootStackParamList = {
+  HomeScreen:undefined;
   WelcomeScreen: undefined;
   ProfileScreen: undefined;
   LoginScreen: undefined;
@@ -44,6 +45,7 @@ export type RootStackParamList = {
   Support:undefined;
   ProductDetailScreen: { product: Product };
   itemScreen:undefined;
+  ConfirmOrderScreen:undefined;
 };
 
 type BottomTabParamList = {
@@ -52,7 +54,6 @@ type BottomTabParamList = {
   }
 }
 
-// types.ts
 export type Product = {
   id?: string;
   title?: string;
@@ -62,13 +63,10 @@ export type Product = {
   category?: 'snacks' | 'meals' | 'dessert' | 'drinks' | 'vegan';
   imageUrl?: string;
   rating?: number
-  toppings :{id: string;
-  name: string;
-  price: number;
   length : number;
   map: (callback: (topping: { id: string; name: string; price: number }) => any) => any[];
   }
-}
+
 
 export type ProductState = {
   productsByCategory: {
