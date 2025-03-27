@@ -2,14 +2,8 @@ import React, {ReactNode} from 'react';
 import {View, StyleSheet, Text, TouchableOpacity, Image} from 'react-native';
 import {IMAGES} from '../../constants/images';
 import {useNavigation} from '@react-navigation/native';
-
-interface ScreenLayoutProps {
-  children: ReactNode;
-  topbarProps: string | ReactNode;
-  showBackButton?: boolean;
-  subBarProps?: ReactNode;
-  title?: string;
-}
+import styles from './Scree.LayoutStyle';
+import {ScreenLayoutProps} from '../../types/type';
 
 const ScreenLayout: React.FC<ScreenLayoutProps> = ({
   children,
@@ -42,44 +36,5 @@ const ScreenLayout: React.FC<ScreenLayoutProps> = ({
     </View>
   );
 };
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    backgroundColor: '#FFD466',
-  },
-  backButton: {
-    position: 'absolute',
-    top: 70,
-    left: 22,
-  },
-  backIcon: {
-    width: 15,
-    height: 15,
-    resizeMode: 'contain',
-  },
-  topSection: {
-    flex: 1.5,
-    justifyContent: 'center',
-    alignItems: 'center',
-  },
-  topText: {
-    fontSize: 22,
-    fontWeight: 'bold',
-    color: '#000',
-  },
-  bottomSection: {
-    flex: 8,
-    backgroundColor: 'white',
-    borderTopLeftRadius: 40,
-    borderTopRightRadius: 40,
-    overflow: 'hidden',
-    paddingTop: 20,
-  },
-  innerContainer: {
-    flex: 1,
-    paddingHorizontal: 10,
-  },
-});
 
 export default ScreenLayout;

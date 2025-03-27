@@ -197,16 +197,17 @@ export const removeItemAndSync = createAsyncThunk(
 
 export const updateCartItemQuantityAndSync = createAsyncThunk(
   'user/updateCartItemQuantityAndSync',
-  async ({ productId, quantity }: { productId: string; quantity: number }, { getState, rejectWithValue }) => {
+  async (
+    {productId, quantity}: {productId: string; quantity: number},
+    {getState, rejectWithValue},
+  ) => {
     try {
-      const state = getState() as { user: UserState };
+      const state = getState() as {user: UserState};
       const userId = auth().currentUser?.uid;
 
       if (!userId) {
         return rejectWithValue('User not authenticated');
       }
-
-      // Create a new array with updated items using map to avoid mutating the frozen state.
       const updatedCartItems = state.user.cart.cartItems.map(item => {
         if (item.productId === productId) {
           return {
@@ -220,26 +221,28 @@ export const updateCartItemQuantityAndSync = createAsyncThunk(
 
       const updatedTotalAmount = updatedCartItems.reduce(
         (total, item) => total + item.totalPrice,
-        0
+        0,
       );
 
       // Update Firestore
-      await firestore().collection('users').doc(userId).update({
-        cart: {
-          cartItems: updatedCartItems,
-          totalAmount: updatedTotalAmount,
-        },
-        updatedAt: firestore.FieldValue.serverTimestamp(),
-      });
+      await firestore()
+        .collection('users')
+        .doc(userId)
+        .update({
+          cart: {
+            cartItems: updatedCartItems,
+            totalAmount: updatedTotalAmount,
+          },
+          updatedAt: firestore.FieldValue.serverTimestamp(),
+        });
 
-      return { cartItems: updatedCartItems, totalAmount: updatedTotalAmount };
+      return {cartItems: updatedCartItems, totalAmount: updatedTotalAmount};
     } catch (error) {
       console.error('Error updating item quantity:', error);
       return rejectWithValue('Failed to update item quantity');
     }
-  }
+  },
 );
-
 const userSlice = createSlice({
   name: 'user',
   initialState,
@@ -256,8 +259,8 @@ const userSlice = createSlice({
         length: 0,
       };
     },
-    addItemToCart: (state, action: PayloadAction<{ item: CartItem }>) => {
-      const { item } = action.payload;
+    addItemToCart: (state, action: PayloadAction<{item: CartItem}>) => {
+      const {item} = action.payload;
       const existingItemIndex = state.cart.cartItems.findIndex(
         i => i.productId === item.productId,
       );
@@ -276,8 +279,8 @@ const userSlice = createSlice({
       );
     },
 
-    removeItemFromCart: (state, action: PayloadAction<{ productId: string }>) => {
-      const { productId } = action.payload;
+    removeItemFromCart: (state, action: PayloadAction<{productId: string}>) => {
+      const {productId} = action.payload;
       state.cart.cartItems = state.cart.cartItems.filter(
         item => item.productId !== productId,
       );
@@ -289,9 +292,9 @@ const userSlice = createSlice({
 
     updateCartItemQuantity: (
       state,
-      action: PayloadAction<{ productId: string; quantity: number }>,
+      action: PayloadAction<{productId: string; quantity: number}>,
     ) => {
-      const { productId, quantity } = action.payload;
+      const {productId, quantity} = action.payload;
       const itemIndex = state.cart.cartItems.findIndex(
         i => i.productId === productId,
       );

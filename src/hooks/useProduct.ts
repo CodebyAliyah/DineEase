@@ -1,24 +1,24 @@
-import { useEffect } from 'react';
+import {useEffect} from 'react';
 import {
   fetchProducts,
   addProductAsync,
   removeProductAsync,
   searchProductsAsync,
-} from '../redux/slices/productSlice';
-import { Product } from '../types/type';
-import { useAppDispatch, useAppSelector } from './useStore';
+} from '../store/slices/productSlice';
+import {Product} from '../types/type';
+import {useAppDispatch, useAppSelector} from './useStore';
 
 export const useFetchProducts = () => {
   const dispatch = useAppDispatch();
-  const products = useAppSelector((state) => state.product.productsByCategory);
-  const loading = useAppSelector((state) => state.product.loading);
-  const error = useAppSelector((state) => state.product.error);
-  
+  const products = useAppSelector(state => state.product.productsByCategory);
+  const loading = useAppSelector(state => state.product.loading);
+  const error = useAppSelector(state => state.product.error);
+
   useEffect(() => {
     dispatch(fetchProducts());
   }, [dispatch]);
 
-  return { products, loading, error };
+  return {products, loading, error};
 };
 
 export const useAddProduct = () => {
@@ -28,28 +28,30 @@ export const useAddProduct = () => {
     dispatch(addProductAsync(product));
   };
 
-  return { addOrUpdateProduct };
+  return {addOrUpdateProduct};
 };
 
 export const useRemoveProduct = () => {
   const dispatch = useAppDispatch();
 
   const removeProduct = (category: Product['category'], id: string) => {
-    dispatch(removeProductAsync({ category, id }));
+    dispatch(removeProductAsync({category, id}));
   };
 
-  return { removeProduct };
+  return {removeProduct};
 };
 
 export const useSearchProducts = () => {
   const dispatch = useAppDispatch();
-  const searchResults = useAppSelector((state) => state.product.productsByCategory);
-  const loading = useAppSelector((state) => state.product.loading);
-  const error = useAppSelector((state => state.product.error));
+  const searchResults = useAppSelector(
+    state => state.product.productsByCategory,
+  );
+  const loading = useAppSelector(state => state.product.loading);
+  const error = useAppSelector(state => state.product.error);
 
   const searchProducts = (searchTerm: string) => {
     dispatch(searchProductsAsync(searchTerm));
   };
 
-  return { searchProducts, searchResults, loading, error };
+  return {searchProducts, searchResults, loading, error};
 };

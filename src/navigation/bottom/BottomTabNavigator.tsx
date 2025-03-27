@@ -1,27 +1,26 @@
 import React from 'react';
-import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { Image, StyleSheet } from 'react-native';
+import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
+import {Image, StyleSheet} from 'react-native';
 import HomeScreen from '../../screens/homeScreen/HomeScreen';
 import MenuScreen from '../../screens/menuScreen/MenuScreen';
 import AddproductScreen from '../../screens/AddProductScreen/AddProductScreen';
 import OrderScreen from '../../screens/orderScreen/OrderScreen';
 import SupportScreen from '../../screens/supportScreen/SupportScreen';
-import { RootStackParamList } from '../../types/type';
+import {RootStackParamList} from '../../types/type';
 
 const Tab = createBottomTabNavigator<RootStackParamList>();
 
 const BottomTabNavigator = () => {
   return (
     <Tab.Navigator
-      screenOptions={({ route }) => ({
+      screenOptions={({route}) => ({
         headerShown: false,
         tabBarShowLabel: false,
         tabBarStyle: styles.tabBarStyle,
         tabBarActiveTintColor: '#ffffff',
         tabBarInactiveTintColor: '#FFA07A',
-        tabBarIcon: ({ focused }) => {
+        tabBarIcon: ({focused}) => {
           let iconSource;
-
           switch (route.name) {
             case 'Home':
               iconSource = require('../../assets/icons/home.png');
@@ -30,7 +29,7 @@ const BottomTabNavigator = () => {
               iconSource = require('../../assets/icons/menu.png');
               break;
             case 'Product':
-              iconSource = require('../../assets/icons/favoirite.png');
+              iconSource = require('../../assets/images/plus.png');
               break;
             case 'Orders':
               iconSource = require('../../assets/icons/order.png');
@@ -47,13 +46,12 @@ const BottomTabNavigator = () => {
               source={iconSource}
               style={[
                 styles.icon,
-                { tintColor: focused ? '#ffffff' : '#FFA07A' },
+                {tintColor: focused ? '#ffffff' : '#FFA07A'},
               ]}
             />
           );
         },
-      })}
-    >
+      })}>
       <Tab.Screen name="Home" component={HomeScreen} />
       <Tab.Screen name="Menu" component={MenuScreen} />
       <Tab.Screen name="Product" component={AddproductScreen} />

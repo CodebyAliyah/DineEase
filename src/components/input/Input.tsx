@@ -1,13 +1,21 @@
-import React, { useState } from "react";
-import { TextInput, View, Text, StyleSheet, TouchableOpacity } from "react-native";
-import Ionicons from "react-native-vector-icons/Ionicons";
-import { InputProps } from "../../types/type";
+import React, {useState} from 'react';
+import {
+  TextInput,
+  View,
+  Text,
+  StyleSheet,
+  TouchableOpacity,
+} from 'react-native';
+import Ionicons from 'react-native-vector-icons/Ionicons';
+import {InputProps} from '../../types/type';
+import styles from './InputStyle';
 
 const Input: React.FC<InputProps> = ({
   label,
-  placeholder = "",
+  placeholder = '',
   value,
   onChangeText,
+  isTransparent = false,
   isPassword = false,
 }) => {
   const [secureText, setSecureText] = useState(isPassword);
@@ -15,7 +23,15 @@ const Input: React.FC<InputProps> = ({
   return (
     <View style={styles.container}>
       {label && <Text style={styles.label}>{label}</Text>}
-      <View style={styles.inputContainer}>
+      <View
+        style={{
+          flexDirection: 'row',
+          alignItems: 'center',
+          backgroundColor: isTransparent ? 'transparent' : '#FFF2C5',
+          borderRadius: 10,
+          height: isTransparent ? 25 : undefined,
+          paddingHorizontal: !isTransparent ? 10 : undefined,
+        }}>
         <TextInput
           style={styles.input}
           placeholder={placeholder}
@@ -28,10 +44,9 @@ const Input: React.FC<InputProps> = ({
         {isPassword && (
           <TouchableOpacity
             onPress={() => setSecureText(!secureText)}
-            style={styles.icon}
-          >
+            style={styles.icon}>
             <Ionicons
-              name={secureText ? "eye-off" : "eye"}
+              name={secureText ? 'eye-off' : 'eye'}
               size={20}
               color="#7D3E00"
             />
@@ -43,32 +58,3 @@ const Input: React.FC<InputProps> = ({
 };
 
 export default Input;
-
-const styles = StyleSheet.create({
-  container: {
-    width: "90%",
-    marginBottom: 15,
-  },
-  label: {
-    fontSize: 14,
-    color: "#7D3E00", // Dark brown for the label
-    marginBottom: 5,
-  },
-  inputContainer: {
-    flexDirection: "row",
-    alignItems: "center",
-    backgroundColor: "#FFF2C5", // Light yellow background
-    borderRadius: 10,
-    paddingHorizontal: 10,
-    // Removed border and borderColor
-  },
-  input: {
-    flex: 1,
-    height: 40,
-    fontSize: 16,
-    color: "#3b2f2f", // Dark brown text color
-  },
-  icon: {
-    padding: 5,
-  },
-});

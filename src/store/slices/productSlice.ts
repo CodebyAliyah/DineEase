@@ -1,6 +1,6 @@
-import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
+import {createSlice, createAsyncThunk, PayloadAction} from '@reduxjs/toolkit';
 import firestore from '@react-native-firebase/firestore';
-import { Product, ProductState } from '../../types/type';
+import {Product, ProductState} from '../../types/type';
 
 const initialState: ProductState = {
   productsByCategory: {
@@ -14,31 +14,33 @@ const initialState: ProductState = {
   error: null,
 };
 
-export const fetchProducts = createAsyncThunk('product/fetchProducts', async (_, { rejectWithValue }) => {
-  try {
-    const snapshot = await firestore().collection('products').get();
-    const products: Product[] = snapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...(doc.data() as Product),
-    }));
+export const fetchProducts = createAsyncThunk(
+  'product/fetchProducts',
+  async (_, {rejectWithValue}) => {
+    try {
+      const snapshot = await firestore().collection('products').get();
+      const products: Product[] = snapshot.docs.map(doc => ({
+        id: doc.id,
+        ...(doc.data() as Product),
+      }));
 
-    return products;
-  } catch (error) {
-    console.error('Error fetching products:', error);
-    return rejectWithValue(error);
-  }
-});
+      return products;
+    } catch (error) {
+      console.error('Error fetching products:', error);
+      return rejectWithValue(error);
+    }
+  },
+);
 
-// 🔥 Add or Update a product
 export const addProductAsync = createAsyncThunk(
   'product/addProductAsync',
-  async (product: Product, { rejectWithValue }) => {
+  async (product: Product, {rejectWithValue}) => {
     try {
       if (!product.id) {
         const docRef = await firestore().collection('products').add(product);
-        return { ...product, id: docRef.id };
+        return {...product, id: docRef.id};
       } else {
-        const { id, ...productData } = product;
+        const {id, ...productData} = product;
         await firestore().collection('products').doc(id).set(productData);
         return product;
       }
@@ -46,13 +48,15 @@ export const addProductAsync = createAsyncThunk(
       console.error('Error adding/updating product:', error);
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
-// 🔥 Remove a product
 export const removeProductAsync = createAsyncThunk(
   'product/removeProductAsync',
-  async (payload: { category: Product['category']; id: string }, { rejectWithValue }) => {
+  async (
+    payload: {category: Product['category']; id: string},
+    {rejectWithValue},
+  ) => {
     try {
       await firestore().collection('products').doc(payload.id).delete();
       return payload;
@@ -60,33 +64,32 @@ export const removeProductAsync = createAsyncThunk(
       console.error('Error removing product:', error);
       return rejectWithValue(error);
     }
-  }
+  },
 );
 
-// 🔥 Search products
 export const searchProductsAsync = createAsyncThunk(
   'product/searchProductsAsync',
-  async (searchTerm: string, { rejectWithValue }) => {
+  async (searchTerm: string, {rejectWithValue}) => {
     try {
-      if (!searchTerm.trim()) return []; 
+      if (!searchTerm.trim()) return [];
 
       const snapshot = await firestore()
         .collection('products')
         .where('name', '>=', searchTerm)
         .where('name', '<=', searchTerm + '\uf8ff')
         .get();
-        
-      const filteredProducts: Product[] = snapshot.docs.map((doc) => ({
+
+      const filteredProducts: Product[] = snapshot.docs.map(doc => ({
         id: doc.id,
         ...(doc.data() as Product),
       }));
 
       return filteredProducts;
-    } catch ({error}:any) {
+    } catch ({error}: any) {
       console.error('Error searching products:', error);
       return rejectWithValue(error.message);
     }
-  }
+  },
 );
 
 export const productSlice = createSlice({
@@ -99,19 +102,21 @@ export const productSlice = createSlice({
         state.productsByCategory[product.category].push(product);
       }
     },
-    removeProduct: (state, action: PayloadAction<{ category: Product['category']; id: string }>) => {
-      const { category, id } = action.payload;
+    removeProduct: (
+      state,
+      action: PayloadAction<{category: Product['category']; id: string}>,
+    ) => {
+      const {category, id} = action.payload;
       if (category) {
-        state.productsByCategory[category] = state.productsByCategory[category].filter(
-          (product) => product.id !== id
-        );
+        state.productsByCategory[category] = state.productsByCategory[
+          category
+        ].filter(product => product.id !== id);
       }
     },
   },
-  extraReducers: (builder) => {
+  extraReducers: builder => {
     builder
-      // Fetch Products Cases
-      .addCase(fetchProducts.pending, (state) => {
+      .addCase(fetchProducts.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -125,7 +130,7 @@ export const productSlice = createSlice({
           vegan: [],
         };
 
-        action.payload.forEach((product) => {
+        action.payload.forEach(product => {
           if (product.category && categorizedProducts[product.category]) {
             categorizedProducts[product.category].push(product);
           }
@@ -138,8 +143,7 @@ export const productSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      // Add Product Cases
-      .addCase(addProductAsync.pending, (state) => {
+      .addCase(addProductAsync.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -147,9 +151,9 @@ export const productSlice = createSlice({
         state.loading = false;
         const product = action.payload;
         if (product.category) {
-          const existingIndex = state.productsByCategory[product.category].findIndex(
-            (p) => p.id === product.id
-          );
+          const existingIndex = state.productsByCategory[
+            product.category
+          ].findIndex(p => p.id === product.id);
 
           if (existingIndex >= 0) {
             state.productsByCategory[product.category][existingIndex] = product;
@@ -163,18 +167,17 @@ export const productSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      // Remove Product Cases
-      .addCase(removeProductAsync.pending, (state) => {
+      .addCase(removeProductAsync.pending, state => {
         state.loading = true;
         state.error = null;
       })
       .addCase(removeProductAsync.fulfilled, (state, action) => {
         state.loading = false;
-        const { category, id } = action.payload;
+        const {category, id} = action.payload;
         if (category) {
-          state.productsByCategory[category] = state.productsByCategory[category].filter(
-            (product) => product.id !== id
-          );
+          state.productsByCategory[category] = state.productsByCategory[
+            category
+          ].filter(product => product.id !== id);
         }
       })
       .addCase(removeProductAsync.rejected, (state, action) => {
@@ -182,8 +185,7 @@ export const productSlice = createSlice({
         state.error = action.payload as string;
       })
 
-      // Search Products Cases
-      .addCase(searchProductsAsync.pending, (state) => {
+      .addCase(searchProductsAsync.pending, state => {
         state.loading = true;
         state.error = null;
       })
@@ -197,7 +199,7 @@ export const productSlice = createSlice({
           vegan: [],
         };
 
-        action.payload.forEach((product) => {
+        action.payload.forEach(product => {
           if (product.category && categorizedProducts[product.category]) {
             categorizedProducts[product.category].push(product);
           }
@@ -212,5 +214,5 @@ export const productSlice = createSlice({
   },
 });
 
-export const { addProduct, removeProduct } = productSlice.actions;
+export const {addProduct, removeProduct} = productSlice.actions;
 export default productSlice.reducer;
